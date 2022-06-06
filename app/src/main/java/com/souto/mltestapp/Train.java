@@ -12,6 +12,7 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -21,9 +22,13 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
@@ -43,8 +48,10 @@ import com.souto.mltestapp.Model.ImageModel;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 public class Train extends AppCompatActivity {
 
@@ -53,6 +60,8 @@ public class Train extends AppCompatActivity {
     public Button btn_camera, btn_gallery;
     public ImageView img_test;
     public ProgressBar progressBar;
+
+    public Spinner spinner;
 
     // Photo taken by the user is stored in this variable
     private File photoFile;
@@ -99,6 +108,39 @@ public class Train extends AppCompatActivity {
             }
         });
 
+        spinner = findViewById(R.id.spinner);
+        List<String> listaSpinner = new ArrayList<>();
+        listaSpinner.add("Select Label");
+        listaSpinner.add("Safe");
+        listaSpinner.add("Not Safe");
+
+        // Adiciona a lista em seu adaptador
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, androidx.appcompat.R.layout.support_simple_spinner_dropdown_item, listaSpinner);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner.setAdapter(adapter);
+
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+
+                // Muda a cor e tamanho do item do spinner
+                int myColor = Color.parseColor("#c8c8c8");
+                ((TextView) adapterView.getChildAt(0)).setTextColor(myColor);
+                ((TextView) adapterView.getChildAt(0)).setTextSize(18);
+
+                if(adapterView.getItemAtPosition(i).equals("Select Label")) {
+                    // do nothing
+                }else{
+
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
+
         img_test = findViewById(R.id.img_test);
 
         btn_camera = findViewById(R.id.btn_camera);
@@ -136,6 +178,7 @@ public class Train extends AppCompatActivity {
         if(requestCode==CAPTURE_IMAGE_REQUEST && resultCode == Activity.RESULT_OK) {
             Glide.with(this).load(photoFile).into(img_test);
             Uri fileProvider = FileProvider.getUriForFile(this, "com.souto.MLprovider", photoFile);
+            spinner.setVisibility(View.VISIBLE);
             uploadImageFirebase(fileProvider);
         }
 
