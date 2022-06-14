@@ -26,6 +26,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -57,9 +58,13 @@ public class Train extends AppCompatActivity {
 
     private FirebaseAuth mAuth;
 
-    public Button btn_camera, btn_gallery;
+    public Button btn_camera, btn_gallery, btn_save;
     public ImageView img_test;
     public ProgressBar progressBar;
+
+    public Uri fileProvider;
+
+    public LinearLayout buttonPannel;
 
     public Spinner spinner;
 
@@ -73,6 +78,8 @@ public class Train extends AppCompatActivity {
     // Bottom nav bar
     public BottomNavigationView bottomNavigationView;
     public ViewPager viewPager;
+
+    public String Label;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -131,7 +138,7 @@ public class Train extends AppCompatActivity {
                 if(adapterView.getItemAtPosition(i).equals("Select Label")) {
                     // do nothing
                 }else{
-
+                    Label = adapterView.getItemAtPosition(i).toString();
                 }
             }
 
@@ -142,16 +149,17 @@ public class Train extends AppCompatActivity {
         });
 
         img_test = findViewById(R.id.img_test);
+        buttonPannel = findViewById(R.id.buttonPanel);
+        progressBar = findViewById(R.id.progress_bar);
 
         btn_camera = findViewById(R.id.btn_camera);
         btn_camera.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 try {
-                    Log.d("debug", "Pressed");
                     takePicture();
                 } catch (Exception e) {
-                    Log.d("debug", ""+e);
+                    Log.d("Error", ""+e);
                 }
             }
         });
@@ -164,7 +172,18 @@ public class Train extends AppCompatActivity {
             }
         });
 
-        progressBar = findViewById(R.id.progress_bar);
+        btn_save = findViewById(R.id.btn_save);
+        btn_save.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (Label.equals("Select Label")){
+                    Toast.makeText(Train.this,"You must select the label!",Toast.LENGTH_SHORT).show();
+                }else{
+                    uploadImageFirebase(fileProvider);
+                }
+            }
+        });
+
     }
 
     // Sets image
@@ -177,9 +196,10 @@ public class Train extends AppCompatActivity {
         // To take a photo
         if(requestCode==CAPTURE_IMAGE_REQUEST && resultCode == Activity.RESULT_OK) {
             Glide.with(this).load(photoFile).into(img_test);
-            Uri fileProvider = FileProvider.getUriForFile(this, "com.souto.MLprovider", photoFile);
+            fileProvider = FileProvider.getUriForFile(this, "com.souto.MLprovider", photoFile);
             spinner.setVisibility(View.VISIBLE);
-            uploadImageFirebase(fileProvider);
+            btn_save.setVisibility(View.VISIBLE);
+            buttonPannel.setVisibility(View.GONE);
         }
 
         // To select a photo from gallery
@@ -202,11 +222,11 @@ public class Train extends AppCompatActivity {
         Date currentTime = Calendar.getInstance().getTime();
 
         FirebaseDatabase mDatabase = FirebaseDatabase.getInstance();
-        DatabaseReference mDatabaseRef = mDatabase.getReference().child("users").child(mAuth.getUid()).child("pics");
+        DatabaseReference mDatabaseRef = mDatabase.getReference().child("users").child(mAuth.getUid()).child("pics").child(Label);
 
         // Gets firebase storage reference
         FirebaseStorage mStorage = FirebaseStorage.getInstance();
-        StorageReference mRef = mStorage.getReference().child("users").child(mAuth.getUid()).child(""+currentTime);
+        StorageReference mRef = mStorage.getReference().child("users").child(mAuth.getUid()).child(Label).child(""+currentTime);
 
         progressBar.setVisibility(View.VISIBLE);
 
@@ -229,6 +249,9 @@ public class Train extends AppCompatActivity {
                         ImageModel image = new ImageModel("" + currentTime, taskSnapshot.getUploadSessionUri().toString());
                         mDatabaseRef.child("" + currentTime).setValue(image);
                         Toast.makeText(Train.this,"Uploaded successfully to database!",Toast.LENGTH_SHORT).show();
+                        spinner.setVisibility(View.GONE);
+                        btn_save.setVisibility(View.GONE);
+                        buttonPannel.setVisibility(View.VISIBLE);
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {

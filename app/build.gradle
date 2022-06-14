@@ -53,5 +53,5 @@ dependencies {
     implementation 'com.google.firebase:firebase-crashlytics'
     implementation 'com.google.firebase:firebase-analytics'
 
-    implementation 'com.google.android.material:material:<version>'
+    implementation 'com.google.android.material:material:1.6.1'
 }
