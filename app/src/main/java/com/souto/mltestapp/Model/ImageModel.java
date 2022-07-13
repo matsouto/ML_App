@@ -7,13 +7,23 @@ public class ImageModel {
     private String ImageDate;
     private String ImageUri;
     private String mKey;
+    private String ImageComment;
 
     public ImageModel() {
     }
 
-    public ImageModel(String imageDate, String imageUri) {
+    public String getImageComment() {
+        return ImageComment;
+    }
+
+    public void setImageComment(String imageComment) {
+        ImageComment = imageComment;
+    }
+
+    public ImageModel(String imageDate, String imageUri, String imageComment) {
         ImageDate = imageDate;
         ImageUri = imageUri;
+        ImageComment = imageComment;
     }
 
     public String getImageDate() {

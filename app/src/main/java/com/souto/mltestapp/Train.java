@@ -25,6 +25,7 @@ import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -37,6 +38,7 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
+import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
@@ -61,6 +63,8 @@ public class Train extends AppCompatActivity {
     public Button btn_camera, btn_gallery, btn_save;
     public ImageView img_test;
     public ProgressBar progressBar;
+
+    public TextInputLayout edt_comments;
 
     public Uri fileProvider;
 
@@ -92,6 +96,8 @@ public class Train extends AppCompatActivity {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, 100);
         }
 
+        edt_comments = findViewById(R.id.comments);
+
         // Set up the navigation tab
         bottomNavigationView = findViewById(R.id.bottom_navigation);
         bottomNavigationView.setSelectedItemId(R.id.page_Train);
@@ -102,10 +108,12 @@ public class Train extends AppCompatActivity {
                 switch (item.getItemId()) {
                     case R.id.page_Classify:
                         startActivity(new Intent(Train.this, Classify.class));
+                        finish();
 //                        viewPager.setCurrentItem(1);
                         break;
                     case R.id.page_Settings:
                         startActivity(new Intent(Train.this, Settings.class));
+                        finish();
 //                        viewPager.setCurrentItem(2);
                         break;
                     default:
@@ -118,8 +126,10 @@ public class Train extends AppCompatActivity {
         spinner = findViewById(R.id.spinner);
         List<String> listaSpinner = new ArrayList<>();
         listaSpinner.add("Select Label");
-        listaSpinner.add("Safe");
-        listaSpinner.add("Not Safe");
+        listaSpinner.add("Aprovado");
+        listaSpinner.add("Problema A");
+        listaSpinner.add("Problema B");
+        listaSpinner.add("Outro");
 
         // Adiciona a lista em seu adaptador
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, androidx.appcompat.R.layout.support_simple_spinner_dropdown_item, listaSpinner);
@@ -139,6 +149,9 @@ public class Train extends AppCompatActivity {
                     // do nothing
                 }else{
                     Label = adapterView.getItemAtPosition(i).toString();
+                    if (Label == "Outro") {
+
+                    }
                 }
             }
 
@@ -200,6 +213,7 @@ public class Train extends AppCompatActivity {
             spinner.setVisibility(View.VISIBLE);
             btn_save.setVisibility(View.VISIBLE);
             buttonPannel.setVisibility(View.GONE);
+            edt_comments.setVisibility(View.VISIBLE);
         }
 
         // To select a photo from gallery
@@ -216,7 +230,6 @@ public class Train extends AppCompatActivity {
         Uri mImageUri = imageUri;
         // Gets firebase authentication
         mAuth = FirebaseAuth.getInstance();
-        Log.d("Debug", mAuth+"");
 
         // Gets the current time to name the photos in storage
         Date currentTime = Calendar.getInstance().getTime();
@@ -245,13 +258,13 @@ public class Train extends AppCompatActivity {
                             }
                         },1000);
 
-                        // O PROBLEMA TA AQUI NA HORA DE COLOCAR A URI ESSA URI TA ERRADA
-                        ImageModel image = new ImageModel("" + currentTime, taskSnapshot.getUploadSessionUri().toString());
+                        ImageModel image = new ImageModel("" + currentTime, taskSnapshot.getUploadSessionUri().toString(), edt_comments.getEditText().getText().toString());
                         mDatabaseRef.child("" + currentTime).setValue(image);
                         Toast.makeText(Train.this,"Uploaded successfully to database!",Toast.LENGTH_SHORT).show();
                         spinner.setVisibility(View.GONE);
                         btn_save.setVisibility(View.GONE);
                         buttonPannel.setVisibility(View.VISIBLE);
+                        edt_comments.setVisibility(View.GONE);
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {

@@ -12,7 +12,7 @@
         android:title="Train"/>
     <item
         android:id="@+id/page_Settings"
-        android:enabled="true"
+        android:enabled="false"
         android:icon="@drawable/ic_baseline_settings_24"
         android:title="Settings"/>
 </menu>
