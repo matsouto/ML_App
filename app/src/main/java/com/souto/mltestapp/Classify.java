@@ -20,6 +20,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -28,14 +29,20 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.model.Model;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
+import com.souto.mltestapp.ml.Model;
+
+import org.tensorflow.lite.DataType;
+import org.tensorflow.lite.support.image.TensorImage;
+import org.tensorflow.lite.support.label.Category;
+import org.tensorflow.lite.support.tensorbuffer.TensorBuffer;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.List;
 
 public class Classify extends AppCompatActivity {
 
@@ -110,7 +117,7 @@ public class Classify extends AppCompatActivity {
         photoFile = getPhotoFile(FILE_NAME);
 
         // Creates a Uri for the taken photo
-        Uri fileProvider = FileProvider.getUriForFile(this, "com.souto.fileprovider", photoFile);
+        Uri fileProvider = FileProvider.getUriForFile(this, "com.souto.MLprovider", photoFile);
         intent.putExtra(MediaStore.EXTRA_OUTPUT, fileProvider);
 
         // Check if there is a camera
@@ -127,34 +134,19 @@ public class Classify extends AppCompatActivity {
         return File.createTempFile(fileName,".jpg",storageDirectory);
     }
 
-    private void classifyImage(Bitmap image) {
+    private void classifyImage(Bitmap figure) {
         try {
             Model model = Model.newInstance(getApplicationContext());
 
             // Creates inputs for reference.
-            TensorBuffer inputFeature0 = TensorBuffer.createFixedSize(new int[]{1, 224, 224, 3}, DataType.FLOAT32);
-            ByteBuffer byteBuffer = ByteBuffer.allocateDirect(4 * imageSize * imageSize * 3);
-            byteBuffer.order(ByteOrder.nativeOrder());
-
-            int [] intValues = new int[imageSize * imageSize];
-            image.getPixels(intValues, 0, image.getWidth(), 0, 0, image.getWidth(), image.getHeight());
-            int pixel = 0;
-            for(int i = 0; i < imageSize; i++){
-                for(int j = 0; j < imageSize; j++){
-                    int val = intValues[pixel++]; //RGB
-                    byteBuffer.putFloat(((val >> 16) & 0xFF) * (1.f / 255.f));
-                    byteBuffer.putFloat(((val >> 8) & 0xFF) * (1.f / 255.f));
-                    byteBuffer.putFloat((val & 0xFF) * (1.f / 255.f));
-                }
-            }
-
-            inputFeature0.loadBuffer(byteBuffer);
+            TensorImage image = TensorImage.fromBitmap(figure);
 
             // Runs model inference and gets result.
-            Model.Outputs outputs = model.process(inputFeature0);
-            TensorBuffer outputFeature0 = outputs.getOutputFeature0AsTensorBuffer();
+            Model.Outputs outputs = model.process(image);
+            TensorBuffer probability = outputs.getProbabilityAsTensorBuffer();
+//            Log.d("Debug", probability.get(0) +"");
 
-            float[] confidences = outputFeature0.getFloatArray();
+            float[] confidences = probability.getFloatArray();
             int maxPos = 0;
             float maxConfidence = 0;
             for(int i = 0; i < confidences.length; i++){
@@ -163,7 +155,12 @@ public class Classify extends AppCompatActivity {
                     maxPos = i;
                 }
             }
-            String[] classes = {"Cat", "Dog"};
+            String[] classes = {"Not Safe","Safe"};
+            if(classes[maxPos].equals("Safe")){
+                result.setTextColor(getResources().getColor(R.color.app_green));
+            }else{
+                result.setTextColor(getResources().getColor(R.color.app_red));
+            }
             result.setText(classes[maxPos]);
 
             String s = "";
@@ -192,10 +189,12 @@ public class Classify extends AppCompatActivity {
             int dimension = Math.min(image.getWidth(), image.getHeight());
             image = ThumbnailUtils.extractThumbnail(image, dimension, dimension);
 
-//            imageView.setImageBitmap(image);
+            imageView.setRotation(90);
+
             Glide.with(this)
                     .load(image)
                     .into(imageView);
+
 
             // Rotating the bitmap
             Matrix matrix = new Matrix();

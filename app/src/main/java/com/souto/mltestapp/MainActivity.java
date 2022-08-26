@@ -39,7 +39,7 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent_train);
                 finish();
             }
-        }, 3500);
+        }, 2500);
 
 
 

@@ -10,6 +10,7 @@
 
     <color name="app_white">#f6f7f9</color>
     <color name="app_blue">#14213d</color>
+    <color name="app_red">#C30000</color>
     <color name="app_green">#3faf4e</color>
     <color name="app_grey">#282424</color>
     <color name="app_lightGrey">#eae9e9</color>

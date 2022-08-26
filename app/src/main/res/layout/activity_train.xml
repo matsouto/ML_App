@@ -11,7 +11,7 @@
     <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/img_test"
         android:layout_width="350dp"
-        android:layout_height="480dp"
+        android:layout_height="350dp"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="50dp"
         android:src="@drawable/ic_baseline_image_search_24"

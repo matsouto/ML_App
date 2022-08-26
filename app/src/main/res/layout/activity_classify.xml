@@ -11,7 +11,7 @@
     <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/imageView"
         android:layout_width="350dp"
-        android:layout_height="480dp"
+        android:layout_height="350dp"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="50dp"
         android:src="@drawable/ic_baseline_image_search_24"
@@ -25,7 +25,7 @@
         android:layout_below="@id/imageView"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="35dp"
-        android:layout_marginBottom="35dp"
+        android:layout_marginBottom="20dp"
         android:backgroundTint="@color/app_green"
         android:text="Take Picture"
         android:textColor="@color/white" />
@@ -36,7 +36,6 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/button"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="10dp"
         android:text="Classified as:"
         android:textSize="20sp"
         android:textStyle="bold" />
@@ -58,7 +57,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/result"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="5dp"
         android:text="Confidences:"
         android:textSize="20sp"
         android:textStyle="bold" />
