@@ -155,8 +155,8 @@ public class Classify extends AppCompatActivity {
                     maxPos = i;
                 }
             }
-            String[] classes = {"Not Safe","Safe"};
-            if(classes[maxPos].equals("Safe")){
+            String[] classes = {"Não Aprovado","Aprovado"};
+            if(classes[maxPos].equals("Aprovado")){
                 result.setTextColor(getResources().getColor(R.color.app_green));
             }else{
                 result.setTextColor(getResources().getColor(R.color.app_red));
